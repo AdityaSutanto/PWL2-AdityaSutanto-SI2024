@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -22,6 +23,14 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+    public static function register($request)
+    {
+        return self::create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'password' => Hash::make($request['password']),
+        ]);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,4 +54,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function get_user(){
+        $sql = $this->select('*')->get();
+
+        return $sql;
+    }
+
 }
+

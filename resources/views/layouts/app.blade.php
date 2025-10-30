@@ -201,6 +201,16 @@
         <a href="{{ route('transaksis.index') }}" class="{{ request()->is('transaksis*') ? 'active' : '' }}">
             <i class="fas fa-sack-dollar"></i> Transactions
         </a>
+
+        <hr style="border-color: #2c2f36; margin: 15px 0;">
+
+        <form action="{{ route('logout') }}" method="POST" style="margin: 0 25px;">
+            @csrf
+            <button type="submit" class="btn btn-danger w-100" 
+                style="background-color: #dc3545; border: none; color: white; border-radius: 5px;">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </button>
+        </form>
     </div>
 
     {{-- NAVBAR --}}
@@ -292,8 +302,8 @@
                 });
             @endif
         });
-    </script>
 
+    </script>
     @stack('scripts')
 </body>
 

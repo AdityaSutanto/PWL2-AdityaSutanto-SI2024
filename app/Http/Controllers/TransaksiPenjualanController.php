@@ -7,6 +7,7 @@ use App\Models\DetailTransakiPenjualan;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class TransaksiPenjualanController extends Controller
 {
@@ -69,8 +70,9 @@ class TransaksiPenjualanController extends Controller
     $transaksi->update(['total_harga' => $total]);
 
     DB::commit();
+    $this->sendEmail($transaksi->email_pembeli, $transaksi->id);
     return redirect()->route('transaksis.index')
-                     ->with('success', 'Transaksi berhasil disimpan.');
+                     ->with('success', 'Transaksi berhasil disimpan dan sudah terkirim ke email.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors('Terjadi kesalahan: ' . $e->getMessage())->withInput();
@@ -156,7 +158,7 @@ class TransaksiPenjualanController extends Controller
             $transaksi->update(['total_harga' => $total]);
 
             DB::commit();
-
+            $this->sendEmail($transaksi->email_pembeli, $transaksi->id);
             return redirect()->route('transaksis.index')
                             ->with('success', 'Transaksi berhasil diperbarui dan stok diperbarui.');
         } catch (\Exception $e) {
@@ -192,5 +194,29 @@ class TransaksiPenjualanController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
         }
+    }
+
+    public function sendEmail($to, $id)
+    {
+        $transaksi_penjualan = new TransaksiPenjualan;
+        $data = $transaksi_penjualan->get_transaksi_penjualan_detail()->where("transaksi_penjualan.id", $id)->get();
+
+        $total_harga['transaksi'] = 0;
+        foreach ($data as $key => $value) {
+            $total_harga['transaksi'] = $total_harga['transaksi'] + $value['total_harga'];
+        }
+
+        $transaksi_ = [
+            'data' => $data,
+            'total_harga' => $total_harga
+        ];
+
+        // Mengirim email
+        Mail::send('transaksi_penjualan.show', $transaksi_, function ($message) use ($to, $data, $total_harga) {
+            $message->to($to)
+                ->subject("Transaksi Details: {$data[0]['email_pembeli']} - dengan Total tagihan RP " . number_format($total_harga['transaksi'], 2, ',', '.') . ".");
+        });
+
+        return response()->json(['message' => 'Email sent successfully!']);
     }
 }
