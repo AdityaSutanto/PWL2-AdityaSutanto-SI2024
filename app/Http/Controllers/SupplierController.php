@@ -105,4 +105,16 @@ class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier berhasil dihapus.');
     }
+
+    public function lihat()
+    {
+        return Supplier::all();
+    }
+
+    public function lihat_by($id)
+    {
+        $coba = Supplier::find($id);
+        if (!$coba) return response()->json(['message'=> 'Data tak ditemukan'], 404);
+        return $coba;
+    }
 }

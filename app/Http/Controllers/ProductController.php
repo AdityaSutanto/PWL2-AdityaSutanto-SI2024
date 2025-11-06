@@ -197,4 +197,16 @@ class ProductController extends Controller
         //redirect to index
         return redirect()->route('products.index')->with('success', 'Data Berhasil Dihapus!.');
     }
+
+    public function lihat()
+    {
+        return Product::all();
+    }
+
+    public function lihat_by($id)
+    {
+        $coba = Product::find($id);
+        if (!$coba) return response()->json(['message'=> 'Data tak ditemukan'], 404);
+        return $coba;
+    }
 }
